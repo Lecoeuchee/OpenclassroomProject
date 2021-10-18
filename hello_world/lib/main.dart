@@ -1,67 +1,64 @@
 import 'package:flutter/material.dart';
 
-class MyAppBTar extends StatelessWidget {
-  const MyAppBar({required this.title, Key? key}) : super(key: key);
+class Product {
+  const Product({required this.name});
 
-  final Widget title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 56.0,
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      decoration: BoxDecoration(color: Colors.blue[500]),
-      child: Row(
-        children: [
-          const IconButton(
-            onPressed: null,
-            icon: Icon(Icons.menu),
-            tooltip: 'Navigation menu',
-          ),
-          Expanded(
-            child: title,
-          ),
-          const IconButton(
-            onPressed: null,
-            icon: Icon(Icons.search),
-            tooltip: 'Search',
-          ),
-        ],
-      ),
-    );
-  }
+  final String name;
 }
 
-class MyScaffold extends StatelessWidget {
-  const MyScaffold({Key? key}) : super(key: key);
+typedef CaretChangedCallback = Function(Product product, bool inCart);
+
+class ShoppingListItem extends StatelessWidget {
+  ShoppingListItem({
+    required this.product,
+    required this.inCart,
+    required this.onCartChanged,
+  }) : super(key: ObjectKey(product));
+
+  final Product product;
+  final bool inCart;
+  final CaretChangedCallback onCartChanged;
+
+  Color _getColor(BuildContext context) {
+    return inCart ? Colors.black54 : Theme.of(context).primaryColor;
+  }
+
+  TextStyle? _getTextStyle(BuildContext context) {
+    if (!inCart) return null;
+
+    return const TextStyle(
+      color: Colors.black54,
+      decoration: TextDecoration.lineThrough,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      child: Column(
-        children: [
-          MyAppBar(
-            title: Text(
-              'Example title',
-              style: Theme.of(context).primaryTextTheme.headline6,
-            ),
-          ),
-          const Expanded(
-            child: Center(
-              child: Text("Hello, world!"),
-            ),
-          ),
-        ],
+    return ListTile(
+      onTap: () {
+        onCartChanged(product, inCart);
+      },
+      leading: CircleAvatar(
+        backgroundColor: _getColor(context),
+        child: Text(product.name[0]),
       ),
+      title: Text(product.name, style: _getTextStyle(context)),
     );
   }
 }
 
 void main(List<String> args) {
   runApp(
-    const MaterialApp(
-      title: 'My App',
-      home: TutorialHome(child: MyScaffold()),
+    MaterialApp(
+      home: Scaffold(
+        body: Center(
+          child: ShoppingListItem(
+            product: const Product(name: 'Chips'),
+            inCart: true,
+            onCartChanged: (product, inCart) {},
+          ),
+        ),
+      ),
     ),
   );
 }
